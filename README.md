@@ -1,1 +1,2 @@
-gym pose detection cuh
+gym pose detection
+run cuh.py
