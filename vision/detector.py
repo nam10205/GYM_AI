@@ -6,6 +6,7 @@ from vision.to_Json import pose_result_to_dict
 import cv2
 from config import Pose_Connections
 import os
+from vision.logic import logic_func
 
 class StopSignal:
     def __init__(self):
@@ -14,7 +15,7 @@ class StopSignal:
 
 def detect(mode, video_path = None):
 
-    model_path = 'pose_landmarker_full.task'
+    model_path = 'model/pose_landmarker_full.task'
     BaseOptions = mp.tasks.BaseOptions
     PoseLandmarker = mp.tasks.vision.PoseLandmarker
     PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
@@ -35,6 +36,7 @@ def detect(mode, video_path = None):
                 if stop_signal.stop:
                     break
                 pose_landmarker_result = landmarker.detect_for_video(mp_image, timestamp_ms)
+                logic_func(pose_landmarker_result, frame)
                 drawing(pose_landmarker_result, frame, stop_signal)
                 frame_data = pose_result_to_dict(pose_landmarker_result, timestamp_ms) # for json file
                 all_frames.append(frame_data)
@@ -57,6 +59,7 @@ def detect(mode, video_path = None):
                     break
                 landmarker.detect_async(mp_image, timestamp_ms)
                 if latest_result:
+                    logic_func(latest_result, frame)
                     drawing(latest_result, frame, timestamp_ms)
 
     # file_path = os.path.join("json_outputs", "pose_video.json")
