@@ -37,7 +37,6 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-    cap.release()
 
 
     if mode == 'video':
@@ -65,10 +64,11 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
                 )
                 drawn_frame = drawing(checking_result, frame)
                 out.write(drawn_frame)
-
+        cap.release()
+        out.release()
 
         checker.remove_session(session_id1)
-        out.release()
+
     return output_path
 
     # elif mode == 'live':
