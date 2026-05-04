@@ -26,10 +26,10 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     VisionRunningMode = mp.tasks.vision.RunningMode
 
     # for saving result
-    output_path = f"/tmp/res_of_{session_id1}"
+    output_path = f"/tmp/res_of_{session_id1}.mp4"
     cap = cv2.VideoCapture(video_path)
 
-    fps = cap.get(cv2.CAP_PROP_FPS)  # original fps
+    fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -59,9 +59,6 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
                 )
                 drawn_frame = drawing(checking_result, frame)
                 out.write(drawn_frame)
-                cv2.imshow("PoseLandmarker", drawn_frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
 
         checker.remove_session(session_id1)
     return output_path
