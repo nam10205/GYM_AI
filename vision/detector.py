@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 db_user = os.getenv('DB_USERNAME')
-db_pw = os.getenv('db_password')
+db_pw = os.getenv('DB_PASSWORD')
 print(f"DEBUG: user={db_user!r}, pw={'set' if db_pw else 'MISSING'}")
 
 
