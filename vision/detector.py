@@ -26,7 +26,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     VisionRunningMode = mp.tasks.vision.RunningMode
 
     # for saving result
-    output_path = f"/tmp/res_of_{session_id1}"
+    output_path = f"/tmp/res_of_{session_id1}.mp4"
     cap = cv2.VideoCapture(video_path)
 
     fps = cap.get(cv2.CAP_PROP_FPS)

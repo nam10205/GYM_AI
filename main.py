@@ -20,7 +20,7 @@ class ProcessRequest(BaseModel):
 @app.post("/process")
 def process_video(data: ProcessRequest):
     print("=== HIT PROCESS ===")
-    video_path = f"{data.user_id}_input.mp4"
+    video_path = f"/tmp/{data.user_id}_input.mp4"
     response = requests.get(data.video_url, stream=True)
 
     with open(video_path, "wb") as f:
