@@ -6,7 +6,7 @@ from cuh import inference
 from vision.uploader import upload
 
 def run_processing(video_path, exercise, mode, user_id):
-    output_path = inference(mode, video_path, exercise, user_id)
+    output_path = inference(video_path, exercise, mode, user_id)
     res_url = upload(output_path, f"result_for_{user_id}")
     return res_url
 app = FastAPI()
