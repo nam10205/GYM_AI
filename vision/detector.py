@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 db_user = os.getenv('DB_USERNAME')
 db_pw = os.getenv('db_password')
+print(f"DEBUG: user={db_user!r}, pw={'set' if db_pw else 'MISSING'}")
 
 
 def detect(mode, video_path, exercise1, user_id1, session_id1):
