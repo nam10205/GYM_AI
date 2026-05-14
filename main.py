@@ -63,31 +63,40 @@ async def process_video(data: ProcessRequest):
 def process_in_background(video_url, exercise, mode, user_id, job_id, callback_url):
     """Process video in background and callback to Django when done"""
     try:
-        print(f"\n=== BACKGROUND PROCESSING START: {job_id} ===")
+        print(f"\n=== BACKGROUND PROCESSING START: {job_id} ===", flush=True)
         
         # Download video
         video_path = f"/tmp/{user_id}_input.mp4"
-        print(f"Downloading video from: {video_url}")
-        response = requests.get(video_url, stream=True)
+        print(f"Downloading video from: {video_url}", flush=True)
+        
+        try:
+            response = requests.get(video_url, stream=True, timeout=60)
+            response.raise_for_status()
+            print(f"Video response received, status: {response.status_code}", flush=True)
+        except Exception as e:
+            print(f"ERROR downloading video: {str(e)}", flush=True)
+            raise
         
         with open(video_path, "wb") as f:
             for chunk in response.iter_content(1024 * 1024):
                 if chunk:
                     f.write(chunk)
-        print(f"Video downloaded to: {video_path}")
+        print(f"Video downloaded to: {video_path}", flush=True)
 
         # Process video
-        print(f"Processing video with exercise: {exercise}, mode: {mode}")
+        print(f"Processing video with exercise: {exercise}, mode: {mode}", flush=True)
         res = run_processing(video_path, exercise, mode, user_id)
-        print(f"Processing complete. Result URL: {res}")
+        print(f"Processing complete. Result URL: {res}", flush=True)
         
         # Clean up
         os.remove(video_path)
 
         # Callback to Django
-        print(f"Sending callback to: {callback_url}")
+        print(f"Sending callback to: {callback_url}", flush=True)
         requests.post(callback_url, json={"result_url": res})
-        print(f"=== BACKGROUND PROCESSING DONE: {job_id} ===\n")
+        print(f"=== BACKGROUND PROCESSING DONE: {job_id} ===\n", flush=True)
         
     except Exception as e:
-        print(f"Background processing failed for {job_id}: {str(e)}\n")
+        print(f"Background processing failed for {job_id}: {str(e)}", flush=True)
+        import traceback
+        print(traceback.format_exc(), flush=True)
