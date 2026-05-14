@@ -20,6 +20,7 @@ def upload(video_path, key):
         video_path,
         "fitness-video",
         key,
-        ExtraArgs={"ContentType": "video/mp4"}
+        ExtraArgs={"ContentType": "video/mp4",
+                   "ContentDisposition": "inline"}
     )
     return f"{R2_url}/{key}"
