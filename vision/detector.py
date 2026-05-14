@@ -27,7 +27,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
         sslmode="require",
         row_factory=dict_row,
     )
-    print("Connected successfully")
+    print("Connected successfully", flush=True)
 
     POSES = {}
 
@@ -35,24 +35,24 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
         cur.execute("SELECT data FROM poses")
 
         rows = cur.fetchall()
-        print(f"Total rows fetched: {len(rows)}")
+        print(f"Total rows fetched: {len(rows)}", flush=True)
 
         # print first row
         if rows:
-            print("First row:")
-            print(rows[0])
+            print("First row:", flush=True)
+            print(rows[0], flush=True)
 
         for row in rows:
             pose = row["data"]
             POSES[pose["_key"]] = pose
 
-    print(f"POSES loaded: {len(POSES)}")
+    print(f"POSES loaded: {len(POSES)}",flush=True)
 
     # print one sample item
     if POSES:
         first_key = next(iter(POSES))
-        print("Sample key:", first_key)
-        print("Sample value:", POSES[first_key])
+        print("Sample key:", first_key, flush=True)
+        print("Sample value:", POSES[first_key], flush=True)
 
     model_path = 'model/pose_landmarker_full.task'
     BaseOptions = mp.tasks.BaseOptions
