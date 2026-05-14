@@ -12,7 +12,7 @@ def drawing(result, frame):
     # --- update messages when new result comes ---
     if result is not None:
         drawing.messages = result.messages
-        drawing.expire_time = now + 6.0  # keep for 3 seconds
+        drawing.expire_time = now + 18.0  # keep for 3 seconds
 
     # --- clear if expired ---
     if now > drawing.expire_time:
