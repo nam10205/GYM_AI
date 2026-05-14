@@ -37,7 +37,7 @@ class ProcessRequest(BaseModel):
     video_url: str
     exercise: str
     mode: str
-    user_id: int
+    user_id: str
 
 
 @app.post("/process")
