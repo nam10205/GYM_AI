@@ -45,29 +45,50 @@ class ProcessRequest(BaseModel):
 
 @app.post("/process")
 async def process_video(data: ProcessRequest):
-    # Return immediately
+    print("=== HIT PROCESS ===")
+    print(f"Job ID: {data.job_id}")
+    print(f"Exercise: {data.exercise}, Mode: {data.mode}")
+    
+    # Start background processing
     thread = threading.Thread(
         target=process_in_background,
-        args=(data.video_url, data.exercise, data.mode, data.user_id, data.job_id, data.callback_url)
+        args=(data.video_url, data.exercise, data.mode, data.user_id, data.job_id, data.callback_url),
+        daemon=True
     )
     thread.start()
 
-    return {"status": "processing", "job_id": data.job_id}
+    # Return immediately - don't wait for processing
+    return {"job_id": data.job_id}
 
 
 def process_in_background(video_url, exercise, mode, user_id, job_id, callback_url):
+    """Process video in background and callback to Django when done"""
     try:
+        print(f"\n=== BACKGROUND PROCESSING START: {job_id} ===")
+        
+        # Download video
         video_path = f"/tmp/{user_id}_input.mp4"
+        print(f"Downloading video from: {video_url}")
         response = requests.get(video_url, stream=True)
+        
         with open(video_path, "wb") as f:
             for chunk in response.iter_content(1024 * 1024):
                 if chunk:
                     f.write(chunk)
+        print(f"Video downloaded to: {video_path}")
 
+        # Process video
+        print(f"Processing video with exercise: {exercise}, mode: {mode}")
         res = run_processing(video_path, exercise, mode, user_id)
+        print(f"Processing complete. Result URL: {res}")
+        
+        # Clean up
         os.remove(video_path)
 
         # Callback to Django
+        print(f"Sending callback to: {callback_url}")
         requests.post(callback_url, json={"result_url": res})
+        print(f"=== BACKGROUND PROCESSING DONE: {job_id} ===\n")
+        
     except Exception as e:
-        print(f"Background processing failed: {e}")
+        print(f"Background processing failed for {job_id}: {str(e)}\n")
