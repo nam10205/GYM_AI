@@ -7,7 +7,7 @@ from cuh import inference
 from vision.uploader import upload
 from contextlib import asynccontextmanager
 import psycopg
-import threading
+from fastapi import BackgroundTasks
 
 load_dotenv()
 
@@ -44,17 +44,17 @@ class ProcessRequest(BaseModel):
 
 
 @app.post("/process")
-async def process_video(data: ProcessRequest):
+async def process_video(data: ProcessRequest, background_tasks: BackgroundTasks):
     print("=== HIT PROCESS ===")
     print(f"Job ID: {data.job_id}")
     print(f"Exercise: {data.exercise}, Mode: {data.mode}")
     
     # Start background processing
-    thread = threading.Thread(
-        target=process_in_background,
-        args=(data.video_url, data.exercise, data.mode, data.user_id, data.job_id, data.callback_url)
+    background_tasks.add_task(
+        process_in_background,
+        data.video_url, data.exercise, data.mode,
+        data.user_id, data.job_id, data.callback_url
     )
-    thread.start()
 
     # Return immediately - don't wait for processing
     return {"job_id": data.job_id}
