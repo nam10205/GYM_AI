@@ -1,9 +1,29 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 import requests
 import os
 from cuh import inference
 from vision.uploader import upload
+from contextlib import asynccontextmanager
+import psycopg
+
+load_dotenv()
+
+
+model = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global model
+    print("=========SERVER STARTED=========")
+
+
+    model = 'loaded'
+    yield
+    print("=========SERVER STOPPED=========")
+
+app = FastAPI(lifespan=lifespan)
 
 def run_processing(video_path, exercise, mode, user_id):
     output_path = inference(video_path, exercise, mode, user_id)

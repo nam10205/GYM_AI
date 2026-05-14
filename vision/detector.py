@@ -7,17 +7,37 @@ from arango import ArangoClient
 from logic.pose_checker import PoseChecker
 from dotenv import load_dotenv
 
-load_dotenv()
-db_user = os.getenv('DB_USERNAME')
-db_pw = os.getenv('DB_PASSWORD')
-print(f"DEBUG: user={db_user!r}, pw={'set' if db_pw else 'MISSING'}")
+import psycopg
+from psycopg.rows import dict_row
 
+load_dotenv()
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_PW = os.getenv('SUPABASE_PW')
+SUPABASE_USER = os.getenv('SUPABASE_USER')
+SUPABASE_DB = os.getenv('SUPABASE_DB')
 
 def detect(mode, video_path, exercise1, user_id1, session_id1):
 
-    client = ArangoClient(hosts="https://qrywlgjahp.us14.qoddiapp.com:443")
-    db = client.db("fitness_app", username=db_user, password=db_pw)
-    col = db.collection("Poses")
+    conn = psycopg.connect(
+        host=SUPABASE_URL,
+        port=5432,
+        dbname=SUPABASE_DB,
+        user=SUPABASE_USER,
+        password=SUPABASE_PW,
+        sslmode="require",
+        row_factory=dict_row,
+    )
+
+    POSES = {}
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT data FROM poses")
+
+        rows = cur.fetchall()
+
+        for row in rows:
+            pose = row["data"]
+            POSES[pose["_key"]] = pose
 
     model_path = 'model/pose_landmarker_full.task'
     BaseOptions = mp.tasks.BaseOptions
@@ -41,7 +61,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
 
 
     if mode == 'video':
-        checker = PoseChecker(col)
+        checker = PoseChecker(POSES)
         checker.start_session(
             session_id=session_id1,
             user_id=user_id1,
