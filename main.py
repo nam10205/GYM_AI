@@ -52,8 +52,7 @@ async def process_video(data: ProcessRequest):
     # Start background processing
     thread = threading.Thread(
         target=process_in_background,
-        args=(data.video_url, data.exercise, data.mode, data.user_id, data.job_id, data.callback_url),
-        daemon=True
+        args=(data.video_url, data.exercise, data.mode, data.user_id, data.job_id, data.callback_url)
     )
     thread.start()
 
