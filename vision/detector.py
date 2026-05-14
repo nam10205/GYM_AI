@@ -64,7 +64,8 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     VisionRunningMode = mp.tasks.vision.RunningMode
 
     # for saving result
-    output_path = f"/tmp/res_of_{session_id1}.mp4"
+    output_path = f"/tmp/tmp_res_of_{session_id1}.mp4"
+    real_output_path = f"/tmp/result_for_{user_id1}.mp4"
     cap = cv2.VideoCapture(video_path)
 
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -110,12 +111,12 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
             "-vcodec", "libx264",
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart",
-            "-y", output_path
+            "-y", real_output_path
         ], check=True)
 
         checker.remove_session(session_id1)
 
-    return output_path
+    return real_output_path
 
     # elif mode == 'live':
     #     latest_result = None
