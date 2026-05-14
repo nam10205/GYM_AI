@@ -87,8 +87,8 @@ class _ActiveSession:
 
 
 class PoseChecker:
-    def __init__(self, collection):
-        self._loader   = PoseLoader(collection)
+    def __init__(self, poses: dict):
+        self._loader   = PoseLoader(poses)
         self._sessions: dict[str, _ActiveSession] = {}
 
     # ── Session lifecycle ─────────────────────────────────────────────────────

@@ -93,8 +93,16 @@ def process_in_background(video_url, exercise, mode, user_id, job_id, callback_u
 
         # Callback to Django
         print(f"Sending callback to: {callback_url}", flush=True)
-        requests.post(callback_url, json={"result_url": res})
-        print(f"=== BACKGROUND PROCESSING DONE: {job_id} ===\n", flush=True)
+        try:
+            callback_response = requests.post(callback_url, json={"result_url": res}, timeout=30)
+            print(f"Callback response status: {callback_response.status_code}", flush=True)
+            print(f"Callback response body: {callback_response.text}", flush=True)
+            callback_response.raise_for_status()
+            print(f"=== BACKGROUND PROCESSING DONE: {job_id} ===\n", flush=True)
+        except Exception as callback_err:
+            print(f"ERROR sending callback: {str(callback_err)}", flush=True)
+            import traceback
+            print(traceback.format_exc(), flush=True)
         
     except Exception as e:
         print(f"Background processing failed for {job_id}: {str(e)}", flush=True)

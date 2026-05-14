@@ -47,6 +47,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
             POSES[pose["_key"]] = pose
 
     print(f"POSES loaded: {len(POSES)}",flush=True)
+    conn.close()
 
     # print one sample item
     if POSES:
