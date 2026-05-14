@@ -16,5 +16,10 @@ s3 = boto3.client(
 )
 
 def upload(video_path, key):
-    s3.upload_file(video_path, "fitness-video", key)
+    s3.upload_file(
+        video_path,
+        "fitness-video",
+        key,
+        ExtraArgs={"ContentType": "video/mp4"}
+    )
     return f"{R2_url}/{key}"
