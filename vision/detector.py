@@ -6,7 +6,6 @@ from vision.drawer import drawing
 from arango import ArangoClient
 from logic.pose_checker import PoseChecker
 from dotenv import load_dotenv
-import subprocess
 
 import psycopg
 from psycopg.rows import dict_row
@@ -64,8 +63,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     VisionRunningMode = mp.tasks.vision.RunningMode
 
     # for saving result
-    output_path = f"/tmp/tmp_res_of_{session_id1}.mp4"
-    real_output_path = f"/tmp/result_for_{user_id1}.mp4"
+    output_path = f"/tmp/res_of_{session_id1}.mp4"
     cap = cv2.VideoCapture(video_path)
 
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -74,7 +72,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    fourcc = cv2.VideoWriter_fourcc(*"avc1")
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
 
@@ -106,17 +104,9 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
         cap.release()
         out.release()
 
-        subprocess.run([
-            "ffmpeg", "-i", output_path,
-            "-vcodec", "libx264",
-            "-pix_fmt", "yuv420p",
-            "-movflags", "+faststart",
-            "-y", real_output_path
-        ], check=True)
-
         checker.remove_session(session_id1)
 
-    return real_output_path
+    return output_path
 
     # elif mode == 'live':
     #     latest_result = None
