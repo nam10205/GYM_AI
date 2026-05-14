@@ -6,6 +6,7 @@ from vision.drawer import drawing
 from arango import ArangoClient
 from logic.pose_checker import PoseChecker
 from dotenv import load_dotenv
+import subprocess
 
 import psycopg
 from psycopg.rows import dict_row
@@ -103,6 +104,14 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
                 out.write(drawn_frame)
         cap.release()
         out.release()
+
+        subprocess.run([
+            "ffmpeg", "-i", output_path,
+            "-vcodec", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
+            "-y", output_path
+        ], check=True)
 
         checker.remove_session(session_id1)
 
