@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 import cv2
 import mediapipe as mp
 from vision.inputter import feeding_frame
@@ -63,7 +65,8 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     VisionRunningMode = mp.tasks.vision.RunningMode
 
     # for saving result
-    output_path = f"/tmp/res_of_{session_id1}.mp4"
+    output_path = f"/tmp/tmp_res_of_{session_id1}.mp4"
+    real_output_path = f"/tmp/result_for_{user_id1}.mp4"
     cap = cv2.VideoCapture(video_path)
 
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -72,7 +75,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    fourcc = cv2.VideoWriter_fourcc(*"avc1")
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
 
@@ -104,9 +107,20 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
         cap.release()
         out.release()
 
+        subprocess.run([
+            "ffmpeg", "-i", output_path,
+            "-vcodec", "libx264",
+            "-preset", "ultrafast",  # much less CPU, slightly larger file
+            "-crf", "28",  # lower quality but faster (23 is default, 28 is fine for web)
+            "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart",
+            "-threads", "1",  # limit to 1 thread to avoid Render CPU spike
+            "-y", real_output_path
+        ], check=True)
+
         checker.remove_session(session_id1)
 
-    return output_path
+    return real_output_path
 
     # elif mode == 'live':
     #     latest_result = None
