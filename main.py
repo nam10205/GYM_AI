@@ -38,6 +38,8 @@ class ProcessRequest(BaseModel):
     exercise: str
     mode: str
     user_id: str
+    job_id: str
+    callback_url: str
 
 
 @app.post("/process")
@@ -69,6 +71,9 @@ async def process_video(data: ProcessRequest, request: Request):
 
     os.remove(video_path)
 
-    return {
-        "result_url": res
-    }
+    try:
+        requests.post(data.callback_url, json={"result_url": res})
+    except Exception as e:
+        print(f"Callback failed: {e}")
+
+    return {"status": "processing", "job_id": data.job_id}
