@@ -70,7 +70,6 @@ from logic.session import session_cache
 
 @dataclass
 class FrameResult:
-    """Returned when a rep completes. None returned on all other frames."""
     rep_id:       int
     phase:        str
     duration_sec: float
@@ -99,7 +98,6 @@ class PoseChecker:
         session_cache.create(session_id, user_id, exercise)
 
     def end_session(self, session_id: str) -> dict:
-        """Close session and return summary dict for LLM."""
         self._sessions.pop(session_id, None)
         return session_cache.close_session(session_id)
 
@@ -115,11 +113,7 @@ class PoseChecker:
         landmarks,
         timestamp_ms: float,
     ) -> FrameResult | None:
-        """
-        landmarks    — PoseLandmarkerResult or flat landmark list
-        timestamp_ms — milliseconds from frame_idx / fps * 1000
-        Returns FrameResult when a rep completes, None otherwise.
-        """
+
         session = self._sessions.get(session_id)
         if session is None:
             raise ValueError(f"Session '{session_id}' not started.")

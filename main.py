@@ -8,16 +8,48 @@ from vision.uploader import upload
 from contextlib import asynccontextmanager
 import psycopg
 from fastapi import BackgroundTasks
+import psycopg
+from psycopg.rows import dict_row
 
 load_dotenv()
+SUPABASE_URL = os.getenv('SUPABASE_URL')
+SUPABASE_PW = os.getenv('SUPABASE_PW')
+SUPABASE_USER = os.getenv('SUPABASE_USER')
+SUPABASE_DB = os.getenv('SUPABASE_DB')
 
 model = None
+POSES = {}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global model
 
     print("=========SERVER STARTED=========")
+
+    conn = psycopg.connect(
+        host=SUPABASE_URL,
+        port=5432,
+        dbname=SUPABASE_DB,
+        user=SUPABASE_USER,
+        password=SUPABASE_PW,
+        sslmode="require",
+        row_factory=dict_row,
+    )
+    print("Connected successfully", flush=True)
+
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT data FROM poses")
+
+        rows = cur.fetchall()
+        print(f"Total rows fetched: {len(rows)}", flush=True)
+        for row in rows:
+            pose = row["data"]
+            POSES[pose["_key"]] = pose
+
+    print(f"POSES loaded: {len(POSES)}", flush=True)
+    conn.close()
 
     model = 'loaded'
 
@@ -49,23 +81,19 @@ async def process_video(data: ProcessRequest, background_tasks: BackgroundTasks)
     print(f"Job ID: {data.job_id}")
     print(f"Exercise: {data.exercise}, Mode: {data.mode}")
     
-    # Start background processing
     background_tasks.add_task(
         process_in_background,
         data.video_url, data.exercise, data.mode,
         data.user_id, data.job_id, data.callback_url
     )
 
-    # Return immediately - don't wait for processing
     return {"job_id": data.job_id}
 
 
 def process_in_background(video_url, exercise, mode, user_id, job_id, callback_url):
-    """Process video in background and callback to Django when done"""
     try:
         print(f"\n=== BACKGROUND PROCESSING START: {job_id} ===", flush=True)
         
-        # Download video
         video_path = f"/tmp/{user_id}_input.mp4"
         print(f"Downloading video from: {video_url}", flush=True)
         
@@ -83,15 +111,12 @@ def process_in_background(video_url, exercise, mode, user_id, job_id, callback_u
                     f.write(chunk)
         print(f"Video downloaded to: {video_path}", flush=True)
 
-        # Process video
         print(f"Processing video with exercise: {exercise}, mode: {mode}", flush=True)
         res = run_processing(video_path, exercise, mode, user_id)
         print(f"Processing complete. Result URL: {res}", flush=True)
         
-        # Clean up
         os.remove(video_path)
 
-        # Callback to Django
         print(f"Sending callback to: {callback_url}", flush=True)
         try:
             callback_response = requests.post(callback_url, json={"result_url": res}, timeout=30)

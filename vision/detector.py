@@ -5,57 +5,14 @@ import cv2
 import mediapipe as mp
 from vision.inputter import feeding_frame
 from vision.drawer import drawing
-from arango import ArangoClient
 from logic.pose_checker import PoseChecker
 from dotenv import load_dotenv
-
-import psycopg
-from psycopg.rows import dict_row
+from main import POSES
 
 load_dotenv()
-SUPABASE_URL = os.getenv('SUPABASE_URL')
-SUPABASE_PW = os.getenv('SUPABASE_PW')
-SUPABASE_USER = os.getenv('SUPABASE_USER')
-SUPABASE_DB = os.getenv('SUPABASE_DB')
+
 
 def detect(mode, video_path, exercise1, user_id1, session_id1):
-
-    conn = psycopg.connect(
-        host=SUPABASE_URL,
-        port=5432,
-        dbname=SUPABASE_DB,
-        user=SUPABASE_USER,
-        password=SUPABASE_PW,
-        sslmode="require",
-        row_factory=dict_row,
-    )
-    print("Connected successfully", flush=True)
-
-    POSES = {}
-
-    with conn.cursor() as cur:
-        cur.execute("SELECT data FROM poses")
-
-        rows = cur.fetchall()
-        print(f"Total rows fetched: {len(rows)}", flush=True)
-
-        # print first row
-        if rows:
-            print("First row:", flush=True)
-            print(rows[0], flush=True)
-
-        for row in rows:
-            pose = row["data"]
-            POSES[pose["_key"]] = pose
-
-    print(f"POSES loaded: {len(POSES)}",flush=True)
-    conn.close()
-
-    # print one sample item
-    if POSES:
-        first_key = next(iter(POSES))
-        print("Sample key:", first_key, flush=True)
-        print("Sample value:", POSES[first_key], flush=True)
 
     model_path = 'model/pose_landmarker_full.task'
     BaseOptions = mp.tasks.BaseOptions

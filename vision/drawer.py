@@ -18,7 +18,6 @@ def drawing(result, frame):
     if now > drawing.expire_time:
         drawing.messages = []
 
-    # --- draw current messages ---
     x, y = 10, 30
     for i, text in enumerate(drawing.messages):
         position = (x, y + i * 30)

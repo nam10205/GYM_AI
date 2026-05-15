@@ -58,10 +58,7 @@ def _torso(result):
 
 
 def get_joint_angles(result) -> dict:
-    """
-    Pass in a PoseLandmarkerResult or a flat landmark list.
-    Returns {joint_name: angle_degrees}. None if landmark not visible.
-    """
+
     def safe(a, b, c):
         pts = [_coord(result, x) for x in (a, b, c)]
         return _angle(*pts) if all(p is not None for p in pts) else None

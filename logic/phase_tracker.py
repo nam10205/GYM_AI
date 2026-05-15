@@ -11,10 +11,7 @@ class PhaseTracker:
         self._candidate_since: float | None = None
 
     def update(self, angles: dict, timestamp: float) -> str:
-        """
-        timestamp — wall-clock seconds (pass timestamp_ms / 1000.0).
-        Returns the current confirmed phase.
-        """
+
         raw = self._detect_raw(angles)
 
         if raw != self._candidate:

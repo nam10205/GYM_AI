@@ -9,8 +9,7 @@ ERROR_MIN_DURATION_MS  = 200.0  # error must persist this long to be registered
 class PhaseResult:
     phase:        str
     duration_sec: float
-    errors:       list[str]   # error codes that lasted ≥500ms in this phase
-
+    errors:       list[str]
 
 @dataclass
 class RepResult:
@@ -22,7 +21,6 @@ class RepResult:
 
     @property
     def messages(self) -> list[str]:
-        """Flat list of all error codes + speed warning for this rep."""
         msgs = []
         for p in self.phases:
             msgs.extend(p.errors)
@@ -59,12 +57,7 @@ class RepTracker:
         errors: list[str],
         timestamp_ms: float,
     ) -> RepResult | None:
-        """
-        Call every frame.
-        errors       — list of non-empty error code strings from pose_checker.
-        timestamp_ms — milliseconds from your video pipeline.
-        Returns RepResult when a rep completes, None otherwise.
-        """
+
         if phase != self._current_phase:
             self._on_phase_exit(self._current_phase, timestamp_ms)
             self._on_phase_enter(phase, timestamp_ms)
