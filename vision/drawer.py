@@ -2,7 +2,21 @@ import time
 import cv2
 from POSE_CONNECTIONS import POSE_CONNECTIONS
 
+# joints you actually want visible
+VISIBLE_JOINTS = [
+    11, 12,     # shoulders
+    13, 14,     # elbows
+    15, 16,     # wrists
+    23, 24,     # hips
+    25, 26,     # knees
+    27, 28,     # ankles
+    29, 30,     # heels
+    31, 32      # foot indexes
+]
+
+
 def drawing(pose_result, result, frame):
+
     # persistent state
     if not hasattr(drawing, "messages"):
         drawing.messages = []
@@ -13,7 +27,7 @@ def drawing(pose_result, result, frame):
     # --- update messages when new result comes ---
     if result is not None:
         drawing.messages = result.messages
-        drawing.expire_time = now + 18.0  # keep for 3 seconds
+        drawing.expire_time = now + 18.0
 
     # --- clear if expired ---
     if now > drawing.expire_time:
@@ -21,12 +35,17 @@ def drawing(pose_result, result, frame):
 
     h, w, _ = frame.shape
 
+
     if pose_result and pose_result.pose_landmarks:
 
         for landmarks in pose_result.pose_landmarks:
 
-            # draw joints
-            for lm in landmarks:
+            for idx, lm in enumerate(landmarks):
+
+                # skip unwanted landmarks
+                if idx not in VISIBLE_JOINTS:
+                    continue
+
                 x = int(lm.x * w)
                 y = int(lm.y * h)
 
@@ -38,8 +57,9 @@ def drawing(pose_result, result, frame):
                     -1
                 )
 
-            # draw skeleton lines
+
             for start_idx, end_idx in POSE_CONNECTIONS:
+
                 start_lm = landmarks[start_idx]
                 end_lm = landmarks[end_idx]
 
@@ -58,7 +78,9 @@ def drawing(pose_result, result, frame):
                 )
 
     x, y = 10, 30
+
     for i, text in enumerate(drawing.messages):
+
         position = (x, y + i * 30)
 
         cv2.putText(
