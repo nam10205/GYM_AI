@@ -1,6 +1,4 @@
-import os
 import subprocess
-
 import cv2
 import mediapipe as mp
 from vision.inputter import feeding_frame
@@ -8,6 +6,7 @@ from vision.drawer import drawing
 from logic.pose_checker import PoseChecker
 from dotenv import load_dotenv
 from main import POSES
+from vision.AI_summary import get_summary
 
 load_dotenv()
 
@@ -75,9 +74,11 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
             "-y", real_output_path
         ], check=True)
 
+        summary = checker.end_session(session_id1)
+        llm_response = get_summary(summary)
         checker.remove_session(session_id1)
 
-    return real_output_path
+    return real_output_path, llm_response
 
     # elif mode == 'live':
     #     latest_result = None

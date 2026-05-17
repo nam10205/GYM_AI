@@ -110,5 +110,4 @@ class SessionCache:
         return [sid for sid, s in self._sessions.items() if s.ended_at is None]
 
 
-# Module-level singleton
 session_cache = SessionCache()

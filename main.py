@@ -61,9 +61,9 @@ app = FastAPI(lifespan=lifespan)
 
 
 def run_processing(video_path, exercise, mode, user_id):
-    output_path = inference(video_path, exercise, mode, user_id)
+    output_path, llm_response = inference(video_path, exercise, mode, user_id)
     res_url = upload(output_path, f"result_for_{user_id}")
-    return res_url
+    return res_url, llm_response
 
 
 class ProcessRequest(BaseModel):
@@ -112,14 +112,14 @@ def process_in_background(video_url, exercise, mode, user_id, job_id, callback_u
         print(f"Video downloaded to: {video_path}", flush=True)
 
         print(f"Processing video with exercise: {exercise}, mode: {mode}", flush=True)
-        res = run_processing(video_path, exercise, mode, user_id)
+        res, llm = run_processing(video_path, exercise, mode, user_id)
         print(f"Processing complete. Result URL: {res}", flush=True)
         
         os.remove(video_path)
 
         print(f"Sending callback to: {callback_url}", flush=True)
         try:
-            callback_response = requests.post(callback_url, json={"result_url": res}, timeout=30)
+            callback_response = requests.post(callback_url, json={"result_url": res, "llm_response": llm}, timeout=30)
             print(f"Callback response status: {callback_response.status_code}", flush=True)
             print(f"Callback response body: {callback_response.text}", flush=True)
             callback_response.raise_for_status()
