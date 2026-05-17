@@ -92,8 +92,7 @@ async def process_video(data: ProcessRequest, background_tasks: BackgroundTasks)
 
 def process_in_background(video_url, exercise, mode, user_id, job_id, callback_url):
     try:
-        print(f"\n=== BACKGROUND PROCESSING START: {job_id} ===", flush=True)
-        
+
         video_path = f"/tmp/{user_id}_input.mp4"
         print(f"Downloading video from: {video_url}", flush=True)
         
