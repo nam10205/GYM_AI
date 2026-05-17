@@ -1,12 +1,11 @@
+from CONSTANTS import POSES
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 import requests
 import os
-from cuh import inference
 from vision.uploader import upload
 from contextlib import asynccontextmanager
-import psycopg
 from fastapi import BackgroundTasks
 import psycopg
 from psycopg.rows import dict_row
@@ -18,7 +17,6 @@ SUPABASE_USER = os.getenv('SUPABASE_USER')
 SUPABASE_DB = os.getenv('SUPABASE_DB')
 
 model = None
-POSES = {}
 
 
 @asynccontextmanager
@@ -56,6 +54,8 @@ async def lifespan(app: FastAPI):
     yield
 
     print("=========SERVER STOPPED=========")
+
+from cuh import inference
 
 app = FastAPI(lifespan=lifespan)
 

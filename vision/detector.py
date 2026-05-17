@@ -5,7 +5,7 @@ from vision.inputter import feeding_frame
 from vision.drawer import drawing
 from logic.pose_checker import PoseChecker
 from dotenv import load_dotenv
-from main import POSES
+from CONSTANTS import POSES
 from vision.AI_summary import get_summary
 
 load_dotenv()
