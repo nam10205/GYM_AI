@@ -58,7 +58,7 @@ def detect(mode, video_path, exercise1, user_id1, session_id1):
                     landmarks=pose_landmarker_result,
                     timestamp_ms=timestamp_ms
                 )
-                drawn_frame = drawing(checking_result, frame)
+                drawn_frame = drawing(pose_landmarker_result, checking_result, frame)
                 out.write(drawn_frame)
         cap.release()
         out.release()
